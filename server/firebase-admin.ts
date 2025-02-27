@@ -1,8 +1,12 @@
 import admin from "firebase-admin";
 
-// Placeholder for future Firebase Admin implementation
-// For now, we're using only client-side Firebase auth
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT as string);
 
-const serviceAccount = null;
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.FIREBASE_DATABASE_URL,
+  });
+}
 
 export { admin };
