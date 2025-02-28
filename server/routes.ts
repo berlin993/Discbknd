@@ -72,3 +72,29 @@ export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
   return httpServer;
 }
+import { authenticate } from "./authMiddleware"; // Middleware import karo
+import { Router } from "express";
+
+const router = Router();
+
+router.post("/api/users", authenticate, async (req, res) => {
+  const { uid, username } = req.user; // Firebase se verified user data
+  console.log("Authenticated User:", uid, username);
+
+  try {
+    const user = await storage.createUser({ uid, username });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create user" });
+  }
+});
+
+router.get("/api/users/me", authenticate, async (req, res) => {
+  const user = await storage.getUserByUid(req.user.uid);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.json(user);
+});
+
+export default router;
